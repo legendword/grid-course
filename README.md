@@ -1,19 +1,35 @@
-# grid-course
+# GridCourse
 
-## Project setup
-```
+A tool for generating course timetables.
+
+**Currently in development... Features are not guaranteed to work.**
+
+Supports UBC Courses of the following academic sessions:
+
+- 2021 Winter
+
+## Info for Developers
+
+### Libraries
+
+GridCourse uses Vue CLI, Vuetify.
+
+### Project Commands
+
+#### Initial Setup
+
+```sh
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
+#### Compile and Hot-Reload for Development
+
+```sh
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
+#### Compile and Minify for Production
+
+```sh
 npm run build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
