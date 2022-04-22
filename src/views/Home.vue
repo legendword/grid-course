@@ -1,32 +1,78 @@
 <template>
     <div class="home">
-        <h2 class="text-center my-5">Set Up Your Schedule</h2>
-        <div class="session-select">
-            <v-select :items="sessions" label="Session" solo v-model="session" />
-        </div>
-        <v-container>
-            <v-row>
-                <v-col cols="3">
-                    <v-autocomplete class="my-2" :items="courses" return-object editable height="50px" label="Add Courses..." :value="courseToAdd" @input="addCourse($event)" />
-                    <v-list nav>
-                        <v-list-item-group v-model="cur" color="primary">
-                            <v-list-item v-for="(course, ind) in selectedCourses" :key="ind">
-                                <v-list-item-content>
-                                    <v-list-item-title>{{ course.subject }} {{ course.course }}</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
-                        </v-list-item-group>
-                        
-                    </v-list>
-                </v-col>
-                <v-col cols="9">
-                    <div v-if="cur !== null">
-                        <h2>{{ selectedCourses[cur].text }}</h2>
-                        <v-data-table v-model="selectedSections" :headers="headers" :items="selectedCourses[cur].sections" show-select :single-select="false" class="elevation-1" />
+        <v-stepper v-model="step" flat>
+            <v-stepper-header>
+                <v-stepper-step :complete="step > 1" step="1">Select Courses</v-stepper-step>
+                <v-divider />
+                <v-stepper-step :complete="step > 2" step="2">Set Preferences</v-stepper-step>
+                <v-divider />
+                <v-stepper-step :complete="step > 3" step="3">Choose Templates</v-stepper-step>
+                <v-divider />
+                <v-stepper-step :complete="step > 4" step="4">Finalize Timetables</v-stepper-step>
+            </v-stepper-header>
+            <v-stepper-items>
+                <v-stepper-content step="1">
+                    <div class="session-select">
+                        <v-select :items="sessions" label="Session" solo v-model="session" />
                     </div>
-                </v-col>
-            </v-row>
-        </v-container>
+                    <v-container class="min-height">
+                        <v-row>
+                            <v-col cols="3">
+                                <v-autocomplete class="my-2" :items="courses" return-object item-text="id" editable height="50px" label="Add Courses..." :value="courseToAdd" @input="addCourse($event)" />
+                                <v-subheader>Selected Courses ({{ selectedCourses.length }})</v-subheader>
+                                <div v-if="selectedCourses.length === 0">
+                                    <v-subheader>No selected courses.</v-subheader>
+                                </div>
+                                <v-list v-else>
+                                    <v-list-item-group v-model="cur" color="primary">
+                                        <v-list-item v-for="(course, ind) in selectedCourses" :key="ind">
+                                            <v-list-item-content>
+                                                <v-list-item-title>{{ course.subject }} {{ course.course }}</v-list-item-title>
+                                            </v-list-item-content>
+                                            <v-list-item-action>
+                                                <v-btn icon @click="removeCourse(ind)">
+                                                    <v-icon dense color="grey lighten-1">mdi-close</v-icon>
+                                                </v-btn>
+                                            </v-list-item-action>
+                                        </v-list-item>
+                                    </v-list-item-group>
+                                </v-list>
+                            </v-col>
+                            <v-col cols="9">
+                                <div v-if="cur !== null && selectedCourses[cur]">
+                                    <h2>{{ selectedCourses[cur].id }}</h2>
+                                    <v-subheader>Sections ({{ selectedCourses[cur].sections.length }})</v-subheader>
+                                    <v-data-table v-model="selectedSections" :headers="headers" :items="selectedCourses[cur].sections" show-select :single-select="false" class="elevation-1" />
+                                </div>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                    <div>
+                        <v-btn color="primary" @click="step = 2">Continue</v-btn>
+                        <v-btn color="secondary" disabled text class="ml-3">Back</v-btn>
+                    </div>
+                </v-stepper-content>
+                <v-stepper-content step="2">
+                    <div>
+                        <v-btn color="primary" @click="step = 3">Continue</v-btn>
+                        <v-btn color="secondary" @click="step = 1" text class="ml-3">Back</v-btn>
+                    </div>
+                </v-stepper-content>
+                <v-stepper-content step="3">
+                    <div>
+                        <v-btn color="primary" @click="step = 4">Continue</v-btn>
+                        <v-btn color="secondary" @click="step = 2" text class="ml-3">Back</v-btn>
+                    </div>
+                </v-stepper-content>
+                <v-stepper-content step="4">
+                    <div>
+                        <v-btn color="primary">Continue</v-btn>
+                        <v-btn color="secondary" @click="step = 3" text class="ml-3">Back</v-btn>
+                    </div>
+                </v-stepper-content>
+            </v-stepper-items>
+        </v-stepper>
+        
     </div>
 </template>
 
@@ -37,6 +83,9 @@ export default {
     name: 'home',
     data() {
         return {
+            step: 1,
+
+
             sessions: ['2021W'],
             session: '2021W',
 
@@ -57,21 +106,22 @@ export default {
         }
     },
     created() {
-        this.courses = ubc2021W.map(v => ({
-            text: v.subject + " " + v.course,
-            disabled: false,
-            ...v
-        }))
+        this.courses = ubc2021W
     },
     methods: {
         addCourse(course) {
-            console.log(course)
             if (course) {
-                if (!this.selectedCourses.some(v => v.text === course.text)) {
+                if (!this.selectedCourses.some(v => v.id === course.id)) {
                     this.selectedCourses.push(course)
+                    this.cur = this.selectedCourses.length - 1
                 }
             }
             this.courseToAdd = null
+        },
+        removeCourse(ind) {
+            let ncur = (ind + 1 === this.selectedCourses.length ? 0 : ind)
+            this.selectedCourses.splice(ind, 1)
+            this.cur = ncur
         }
     }
 }
@@ -81,5 +131,8 @@ export default {
 .session-select {
     margin: 5px auto;
     width: 200px;
+}
+.min-height {
+    min-height: 80vh;
 }
 </style>

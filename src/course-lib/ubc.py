@@ -2,7 +2,7 @@
 UBC Public Course Schedule Web Scrapler
 
 Using Python 3.9.9
-Libraries: requests
+Libraries: requests, bs4
 '''
 
 import json
@@ -46,6 +46,7 @@ def fetch_sections(subject, course):
         s = {}
         cols = row.contents
         s['section'] = cols[1].select_one('a').string.split(' ')[2]
+        s['id'] = subject + ' ' + course + ' ' + s['section']
         s['type'] = cols[2].string
         s['term'] = cols[3].string
         s['delivery'] = cols[4].string
@@ -73,7 +74,7 @@ if __name__ == '__main__':
         for c in courses:
             print(s, c)
             try:
-                res.append({'subject': s, 'course': c, 'sections': fetch_sections(s, c)})
+                res.append({'id': s + ' ' + c, 'subject': s, 'course': c, 'sections': fetch_sections(s, c)})
             except:
                 print('[skipped due to error]')
                 skipped.append({'subject': s, 'course': c})
