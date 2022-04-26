@@ -6,9 +6,7 @@
                 <v-divider />
                 <v-stepper-step :complete="step > 2" step="2">Set Preferences</v-stepper-step>
                 <v-divider />
-                <v-stepper-step :complete="step > 3" step="3">Choose Templates</v-stepper-step>
-                <v-divider />
-                <v-stepper-step :complete="step > 4" step="4">Finalize Timetables</v-stepper-step>
+                <v-stepper-step :complete="step > 3" step="3">Finalize Timetables</v-stepper-step>
             </v-stepper-header>
             <v-stepper-items>
                 <v-stepper-content step="1">
@@ -48,26 +46,26 @@
                         </v-row>
                     </v-container>
                     <div>
-                        <v-btn color="primary" @click="step = 2">Continue</v-btn>
+                        <v-btn color="primary" @click="nextStep(2)">Continue</v-btn>
                         <v-btn color="secondary" disabled text class="ml-3">Back</v-btn>
                     </div>
                 </v-stepper-content>
                 <v-stepper-content step="2">
+                    <v-container class="min-height">
+                        <h3 class="my-10">This is an upcoming feature. For now, continue to the next step to generate timetables.</h3>
+                    </v-container>
                     <div>
-                        <v-btn color="primary" @click="step = 3">Continue</v-btn>
+                        <v-btn color="primary" @click="nextStep(3)">Continue</v-btn>
                         <v-btn color="secondary" @click="step = 1" text class="ml-3">Back</v-btn>
                     </div>
                 </v-stepper-content>
                 <v-stepper-content step="3">
+                    <v-container class="min-height">
+                        <schedules :courses="coursesToSchedule" />
+                    </v-container>
                     <div>
-                        <v-btn color="primary" @click="step = 4">Continue</v-btn>
+                        <v-btn color="primary" @click="step = 3" disabled>Continue</v-btn>
                         <v-btn color="secondary" @click="step = 2" text class="ml-3">Back</v-btn>
-                    </div>
-                </v-stepper-content>
-                <v-stepper-content step="4">
-                    <div>
-                        <v-btn color="primary">Continue</v-btn>
-                        <v-btn color="secondary" @click="step = 3" text class="ml-3">Back</v-btn>
                     </div>
                 </v-stepper-content>
             </v-stepper-items>
@@ -77,10 +75,12 @@
 </template>
 
 <script>
+import Schedules from '../components/Schedules.vue'
 import ubc2021W from '../course-lib/ubc-2021W.json'
 
 export default {
     name: 'home',
+    components: { Schedules },
     data() {
         return {
             step: 1,
@@ -94,7 +94,7 @@ export default {
             cur: null,
             selectedCourses: [],
 
-            selectedSections: [],
+            selectedSections: [], // todo: select sections to lock / disable
             headers: [
                 { text: 'Section', value: 'section' },
                 { text: 'Type', value: 'type' },
@@ -102,13 +102,21 @@ export default {
                 { text: 'Days', value: 'days' },
                 { text: 'Start Time', value: 'start_time' },
                 { text: 'End Time', value: 'end_time' }
-            ]
+            ],
+
+            coursesToSchedule: []
         }
     },
     created() {
         this.courses = ubc2021W
     },
     methods: {
+        nextStep(n) {
+            if (n === 3) {
+                this.coursesToSchedule = [...this.selectedCourses];
+            }
+            this.step = n;
+        },
         addCourse(course) {
             if (course) {
                 if (!this.selectedCourses.some(v => v.id === course.id)) {
@@ -133,6 +141,6 @@ export default {
     width: 200px;
 }
 .min-height {
-    min-height: 80vh;
+    min-height: 50vh;
 }
 </style>
