@@ -1,3 +1,9 @@
+/**
+ * Compares two timestrings.
+ * @param {string} a
+ * @param {string} b
+ * @returns {number} 0 if equal, -1 if a is earlier than b, 1 if a is later than b
+ */
 export const timeCompare = (a, b) => {
     let x = a.split(":").map(v => parseInt(v));
     let y = b.split(":").map(v => parseInt(v));

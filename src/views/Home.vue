@@ -51,7 +51,7 @@
                     </div>
                 </v-stepper-content>
                 <v-stepper-content step="2">
-                    <v-container class="min-height">
+                    <v-container>
                         <h3 class="my-10">This is an upcoming feature. For now, continue to the next step to generate timetables.</h3>
                     </v-container>
                     <div>

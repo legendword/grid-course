@@ -1,20 +1,32 @@
 <template>
     <div>
-        <table class="schedule-table">
-            <tr class="table-header">
-                <th class="empty"></th>
-                <th v-for="day in days" :key="day">{{ day }}</th>
-            </tr>
-            <tr v-for="(time, ind) in times" :key="ind">
-                <td v-if="ind % 2 === 0">{{ time }}</td>
-                <td class="empty" v-else></td>
-                <template v-for="day in days">
-                    <td v-if="schedule[getKey(1, day, time)] && (typeof schedule[getKey(1, day, time)]) === 'object'" :key="day">{{ schedule[getKey(1, day, time)].id }} *</td>
-                    <td v-else-if="schedule[getKey(1, day, time)]" :key="day">{{ schedule[getKey(1, day, time)] }}</td>
-                    <td class="empty" v-else :key="day">{{ getKey(1, day, time) }}</td>
-                </template>
-            </tr>
-        </table>
+        <div class="mb-5" v-for="term in 2" :key="term">
+            <div class="text-h6">Term {{ term }}</div>
+            <table class="schedule-table">
+                <colgroup>
+                    <col v-for="i in 8" :key="i" />
+                </colgroup>
+                <tr class="table-header">
+                    <th class="time empty"></th>
+                    <th :class="'section' + ((day === 'Sun' || day === 'Sat') ? ' weekend' : '')" v-for="day in days" :key="day">{{ day }}</th>
+                </tr>
+                <tr v-for="(time, ind) in times" :key="ind">
+                    <td v-if="ind % 2 === 0">{{ time }}</td>
+                    <td class="empty" v-else>&nbsp;</td>
+                    <template v-for="day in days">
+                        <td v-if="schedule[getKey(term, day, time)] && (typeof schedule[getKey(term, day, time)]) === 'object'" :key="day" :rowspan="schedule[getKey(term, day, time)].span">
+                            <v-card class="section-card secondary">
+                                <v-card-text class="section-text white--text">
+                                    <div class="section-name">{{ schedule[getKey(term, day, time)].id }}</div>
+                                    <div class="text-subtitle-1">{{ schedule[getKey(term, day, time)].type }}</div>
+                                </v-card-text>
+                            </v-card>
+                        </td>
+                        <td class="empty" v-else-if="!schedule[getKey(term, day, time)]" :key="day">&nbsp;</td>
+                    </template>
+                </tr>
+            </table>
+        </div>
     </div>
 </template>
 
@@ -35,7 +47,6 @@ export default {
     watch: {
         schedule: {
             handler(val) {
-                console.log(getTimeArray, getTimeRange);
                 this.times = getTimeArray(getTimeRange(val));
             },
             immediate: true
@@ -53,17 +64,49 @@ export default {
 .schedule-table {
     height: 600px;
     width: 100%;
+    table-layout: fixed;
+    text-align: center;
 
     .table-header {
         height: 40px;
     }
 
-    .empty::before {
-        content: " ";
+    .time {
+        width: 5%;
     }
 
-    th:nth-child(even), td:nth-child(even) {
+    .section:not(.weekend) {
+        width: 15%;
+    }
+
+    .section.weekend {
+        width: 10%;
+    }
+
+    .section-card {
+        height: 100%;
+
+        .section-text {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            .section-name {
+                font-size: 1rem;
+                font-weight: 500;
+            }
+        }
+    }
+
+    
+
+    col:nth-child(even) {
         background: #F1F8E9;
+    }
+
+    tr {
+        border-bottom: 3px solid #F57C00;
     }
 }
 </style>

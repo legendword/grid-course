@@ -10,16 +10,6 @@ class Scheduler {
     }
 
     /**
-     * @todo
-     * @public
-     * @param {Object} schedule 
-     * Generates an object with the start time as key, end time and section info as value, for frontend display.
-     */
-    generateDisplay(schedule) {
-
-    }
-
-    /**
      * @public
      * Produces all possible schedules (stored in this.schedules)
      */
@@ -107,17 +97,20 @@ class Scheduler {
         for (let day of section.days) {
             let ts = new Timeslot(section.term, day, section.start_time);
 
-            let key = ts.toKey();
-            if (res[key]) return false;
-            res[key] = section; // store the entire seciton object for first timeslot
+            let firstKey = ts.toKey();
+            if (res[firstKey]) return false;
+            res[firstKey] = section; // store the entire seciton object for first timeslot
             ts.next();
+            let span = 1; // number of timeslots the section spans
 
             while (!ts.equals(section.end_time)) {
                 let key = ts.toKey();
                 if (res[key]) return false;
                 res[key] = section.id; // store only the section id for subsequent timeslots
+                ++span;
                 ts.next();
             }
+            res[firstKey].span = span; // for rendering Schedule table
         }
         return res;
     }
