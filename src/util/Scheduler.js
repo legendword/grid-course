@@ -61,8 +61,13 @@ class Scheduler {
      * @returns {null}
      */
     scheduleCourse(n, schedule) {
+        if (this.schedules.length >= 1000) return;
         if (n >= this.worklist.length) {
             this.schedules.push(schedule);
+            // console.log(this.schedules.length);
+            if (this.schedules.length === 1000) {
+                console.warn('Too many possible schedules; limiting result to 1000 schedules only.');
+            }
             return;
         }
         let courseSectionsByTerm = this.worklist[n];

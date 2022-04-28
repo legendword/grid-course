@@ -1,3 +1,5 @@
+import { timeCompare } from "./time-utils";
+
 class Timeslot {
     term;
     day;
@@ -64,8 +66,7 @@ class Timeslot {
      * @returns {boolean}
      */
     equals(timestr) {
-        let s = timestr.split(":");
-        return this.padZero(this.hour) === s[0] && this.padZero(this.minute) === s[1];
+        return timeCompare(this.toTimeStr(), timestr) === 0;
     }
 
     /**
