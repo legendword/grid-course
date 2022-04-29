@@ -16,13 +16,13 @@
                     <template v-for="day in days">
                         <td v-if="schedule[getKey(term, day, time)] && (typeof schedule[getKey(term, day, time)]) === 'object'" :key="day" :rowspan="schedule[getKey(term, day, time)].span">
                             <v-card class="section-card secondary">
-                                <v-card-text class="section-text white--text">
+                                <v-card-text class="section-text white--text" style="padding: 0 !important;">
                                     <div class="section-name">{{ schedule[getKey(term, day, time)].id }}</div>
                                     <div class="text-subtitle-1">{{ schedule[getKey(term, day, time)].type }}</div>
                                 </v-card-text>
                             </v-card>
                         </td>
-                        <td class="empty" v-else-if="!schedule[getKey(term, day, time)]" :key="day">&nbsp;</td>
+                        <td class="empty" v-else-if="!schedule[getKey(term, day, time)]" :key="day + 'empty'">&nbsp;</td>
                     </template>
                 </tr>
             </table>
@@ -105,8 +105,8 @@ export default {
         background: #F1F8E9;
     }
 
-    tr {
-        border-bottom: 3px solid #F57C00;
+    tr, th, td {
+        height: 30px;
     }
 }
 </style>

@@ -35,3 +35,38 @@ export const getTimeArray = (timeRange) => {
     res.push(ts.toTimeStr());
     return res;
 };
+/**
+ * Returns course sections distributed into terms, for term preference selection
+ * @param {Array} courses 
+ * @returns
+ */
+export const getTermDistribution = (courses) => {
+    let res = [];
+    for (let course of courses) {
+        let term1sections = [];
+        let term2sections = [];
+        for (let section of course.sections) {
+            if (section.term === "1") {
+                term1sections.push(section);
+            }
+            else { // todo: year-round sections (term === "1-2")
+                term2sections.push(section);
+            }
+        }
+        let termChoices = [];
+        if (term1sections.length > 0) termChoices.push("1");
+        if (term2sections.length > 0) termChoices.push("2");
+        if (termChoices.length === 0) console.error(course.id, 'has no sections in either term');
+        let c = {
+            id: course.id,
+            termChoices,
+            term: termChoices[0],
+            sections: {
+                "1": term1sections,
+                "2": term2sections
+            }
+        };
+        res.push(c);
+    }
+    return res;
+}

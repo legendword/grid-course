@@ -51,8 +51,25 @@
                     </div>
                 </v-stepper-content>
                 <v-stepper-content step="2">
-                    <v-container>
-                        <h3 class="my-10">This is an upcoming feature. For now, continue to the next step to generate timetables.</h3>
+                    <v-container class="min-height">
+                        <v-row>
+                            <v-col cols="6">
+                                <div class="text-h6 my-5 text-center">Choose Preferred Term</div>
+                                <v-list>
+                                    <v-list-item v-for="course in preferences.courseTerms" :key="course.id">
+                                        <v-list-item-content>
+                                            <v-list-item-title>{{ course.id }}</v-list-item-title>
+                                        </v-list-item-content>
+                                        <v-list-item-action>
+                                            <v-btn-toggle v-model="course.term" mandatory color="primary" borderless>
+                                                <v-btn :disabled="!course.termChoices.includes('1')" value="1">Term 1</v-btn>
+                                                <v-btn :disabled="!course.termChoices.includes('2')" value="2">Term 2</v-btn>
+                                            </v-btn-toggle>
+                                        </v-list-item-action>
+                                    </v-list-item>
+                                </v-list>
+                            </v-col>
+                        </v-row>
                     </v-container>
                     <div>
                         <v-btn color="primary" @click="nextStep(3)">Continue</v-btn>
@@ -77,6 +94,7 @@
 <script>
 import Schedules from '../components/Schedules.vue'
 import ubc2021W from '../course-lib/ubc-2021W.json'
+import { getTermDistribution } from '../util/schedule-utils'
 
 export default {
     name: 'home',
@@ -104,7 +122,11 @@ export default {
                 { text: 'End Time', value: 'end_time' }
             ],
 
-            coursesToSchedule: []
+            coursesToSchedule: [],
+            preferences: {
+                courseTerms: [],
+                terms: []
+            }
         }
     },
     created() {
@@ -112,7 +134,10 @@ export default {
     },
     methods: {
         nextStep(n) {
-            if (n === 3) {
+            if (n === 2) {
+                this.preferences.courseTerms = getTermDistribution(this.selectedCourses);
+            }
+            else if (n === 3) {
                 this.coursesToSchedule = [...this.selectedCourses];
             }
             this.step = n;
