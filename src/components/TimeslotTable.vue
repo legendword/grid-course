@@ -14,7 +14,7 @@
                     <td v-if="ind % 2 === 0">{{ time }}</td>
                     <td class="empty" v-else>&nbsp;</td>
                     <template v-for="day in days" @mousedown="selectTime(getKey(term, day, time))">
-                        <td v-if="schedule[getKey(term, day, time)]" :key="day" :rowspan="schedule[getKey(term, day, time)].span">
+                        <td v-if="schedule.includes(getKey(term, day, time))" :key="day">
                             <v-card class="section-card secondary">
                                 <v-card-text class="section-text white--text" style="padding: 0 !important;">
                                     <div class="section-name empty">&nbsp;</div>
@@ -51,7 +51,7 @@ export default {
         },
         selectTime(key) {
             console.log(true);
-            this.schedule[key] = true;
+            this.schedule.push(key);
         }
     }
 }
