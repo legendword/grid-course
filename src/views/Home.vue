@@ -110,7 +110,7 @@ export default {
     components: { Schedules, TimeslotTable },
     data() {
         return {
-            step: 2,
+            step: 1,
             sessions: ['2021W'],
             session: '2021W',
 
