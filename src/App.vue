@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <v-navigation-drawer app permanent>
+        <v-navigation-drawer app expand-on-hover>
             <v-list-item>
                 <v-list-item-content>
                     <v-list-item-title class="text-h6">
@@ -21,7 +21,7 @@
             </v-list>
         </v-navigation-drawer>
 
-        <v-main>
+        <v-main style="padding: 0 0 0 56px;">
             <router-view />
         </v-main>
     </v-app>
@@ -30,7 +30,12 @@
 <script>
 export default {
     name: 'App',
-
+    head: {
+        title: {
+            inner: 'GridCourse',
+            complement: 'Create Schedules'
+        }
+    },
     data: () => ({
         //
     }),

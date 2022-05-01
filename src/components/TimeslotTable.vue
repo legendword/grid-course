@@ -37,7 +37,7 @@ import _union from 'lodash/union';
 import _difference from 'lodash/difference';
 
 export default {
-    name: 'timeslotTable',
+    name: 'TimeslotTable',
     props: {
         timeRange: Object
     },
@@ -79,20 +79,12 @@ export default {
             if (!this.selectOnDrag) return;
             let ts = new Timeslot(term, day, time);
             let cells = this.initialSelectTimeslot.boxSelectionTo(ts);
-            console.log(cells);
             if (this.selectMode) {
                 this.selected = _union(this.selected, cells);
             }
             else {
                 this.selected = _difference(this.selected, cells);
             }
-            /*
-            if (this.selected.includes(key)) {
-                this.selected = this.selected.filter(item => item !== key )
-            } else {
-                this.selected.push(key);
-            }
-            */
         },
         disableSelection() { //on mouse up
             this.selectOnDrag = false;

@@ -12,7 +12,7 @@ Supports UBC Courses of the following academic sessions:
 
 ### Libraries
 
-GridCourse uses Vue CLI, Vuetify.
+GridCourse uses Vue CLI, Vuetify, Lodash.
 
 ### Project Commands
 

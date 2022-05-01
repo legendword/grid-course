@@ -102,6 +102,7 @@
 import Schedules from '../components/Schedules.vue'
 import TimeslotTable from '../components/TimeslotTable.vue'
 import ubc2021W from '../course-lib/ubc-2021W.json'
+import ubc2022S from '../course-lib/ubc-2022S.json'
 import { getCourseTimeRange, getTermDistribution } from '../util/schedule-utils'
 import Scheduler from '../util/Scheduler';
 
@@ -111,7 +112,7 @@ export default {
     data() {
         return {
             step: 1,
-            sessions: ['2021W'],
+            sessions: ['2021W', '2022S'],
             session: '2021W',
 
             courses: [],
@@ -141,6 +142,13 @@ export default {
     },
     created() {
         this.courses = ubc2021W
+    },
+    watch: {
+        session(val) {
+            if (val === '2021W') this.courses = ubc2021W;
+            else if (val === '2022S') this.courses = ubc2022S;
+            this.selectedCourses = [];
+        }
     },
     methods: {
         generateSchedules() {
