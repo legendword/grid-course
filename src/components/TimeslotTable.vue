@@ -13,15 +13,15 @@
                 <tr v-for="(time, ind) in times" :key="ind">
                     <td v-if="ind % 2 === 0">{{ time }}</td>
                     <td class="empty" v-else>&nbsp;</td>
-                    <template v-for="day in days" @mousedown="selectTime(getKey(term, day, time))">
-                        <td v-if="schedule.includes(getKey(term, day, time))" :key="day">
-                            <v-card class="section-card secondary">
-                                <v-card-text class="section-text white--text" style="padding: 0 !important;">
-                                    <div class="section-name empty">&nbsp;</div>
-                                </v-card-text>
-                            </v-card>
-                        </td>
-                        <td class="empty" @mousedown="selectTime(getKey(term, day, time))" v-else-if="!schedule[getKey(term, day, time)]" :key="day + 'empty'">&nbsp;</td>
+                    <template v-for="day in days">
+                        <td 
+                            class="empty" 
+                            :class="{secondary: schedule.includes(getKey(term,day,time))}" 
+                            :key="day + 'empty'"
+                            @mousedown="enableSelection(getKey(term, day, time))"
+                            @mouseup="disableSelection"
+                            @mouseover="selectOnHover(getKey(term, day, time))"
+                        >&nbsp;</td>
                     </template>
                 </tr>
             </table>
@@ -40,7 +40,8 @@ export default {
         return {
             days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             times: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
-            schedule: []
+            schedule: [],
+            selectOnDrag: false
         }
     },
     watch: {
@@ -49,10 +50,24 @@ export default {
         getKey(term, day, time) {
             return term + ':' + day + ';' + time;
         },
-        selectTime(key) {
-            console.log(true);
-            this.schedule.push(key);
+        enableSelection(key) { //on mouse down
+            this.selectOnDrag = true;
+            if (this.schedule.includes(key)) {
+                this.schedule = this.schedule.filter(item => item !== key )
+            } else
+                this.schedule.push(key);
+        },
+        selectOnHover(key) {
+            if (!this.selectOnDrag) return;
+            if (this.schedule.includes(key)) {
+                this.schedule = this.schedule.filter(item => item !== key )
+            } else
+                this.schedule.push(key);
+        },
+        disableSelection() { //on mouse up
+            this.selectOnDrag = false;
         }
+
     }
 }
 </script>
@@ -63,6 +78,9 @@ export default {
     width: 100%;
     table-layout: fixed;
     text-align: center;
+    & * {
+        user-select: none;
+    }
 
     .table-header {
         height: 40px;
@@ -82,18 +100,6 @@ export default {
 
     .section-card {
         height: 100%;
-
-        .section-text {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-
-            .section-name {
-                font-size: 1rem;
-                font-weight: 500;
-            }
-        }
     }
 
     col:nth-child(even) {
