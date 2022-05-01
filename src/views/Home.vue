@@ -53,7 +53,7 @@
                 <v-stepper-content step="2">
                     <v-container class="min-height">
                         <v-row>
-                            <v-col cols="6">
+                            <v-col v-if="!toggleTimeslotTable" cols="6">
                                 <div class="text-h6 my-5 text-center">Choose Preferred Term</div>
                                 <v-list>
                                     <v-list-item v-for="course in preferences.courseTerms" :key="course.id">
@@ -69,7 +69,15 @@
                                     </v-list-item>
                                 </v-list>
                             </v-col>
+                            <v-col v-if="toggleTimeslotTable">
+                                <div class="text-h6 my-5 text-center">Choose Preferred Timeslot</div>
+                                <timeslotTable :courses="coursesToSchedule" />
+                            </v-col>
                         </v-row>
+                        <div>
+                            <v-btn color="primary" @click="toggleTimeslotTable = true" :disabled="toggleTimeslotTable">Next</v-btn>
+                            <v-btn color="secondary" @click="toggleTimeslotTable = false" text class="ml-3" :disabled="!toggleTimeslotTable">Back</v-btn>
+                        </div>
                     </v-container>
                     <div>
                         <v-btn color="primary" @click="nextStep(3)">Continue</v-btn>
@@ -93,17 +101,16 @@
 
 <script>
 import Schedules from '../components/Schedules.vue'
+import TimeslotTable from '../components/TimeslotTable.vue'
 import ubc2021W from '../course-lib/ubc-2021W.json'
 import { getTermDistribution } from '../util/schedule-utils'
 
 export default {
     name: 'home',
-    components: { Schedules },
+    components: { Schedules, TimeslotTable },
     data() {
         return {
             step: 1,
-
-
             sessions: ['2021W'],
             session: '2021W',
 
@@ -126,7 +133,8 @@ export default {
             preferences: {
                 courseTerms: [],
                 terms: []
-            }
+            },
+            toggleTimeslotTable: false,
         }
     },
     created() {
