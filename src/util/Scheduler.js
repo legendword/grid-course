@@ -1,11 +1,9 @@
 import Timeslot from './Timeslot';
 
 class Scheduler {
-    courses;
     schedules;
 
     constructor(courses) {
-        this.courses = courses;
         this.schedules = null;
     }
 
@@ -13,43 +11,30 @@ class Scheduler {
      * @public
      * Produces all possible schedules (stored in this.schedules)
      */
-    generateAllSchedules() {
+    generateAllSchedules(courses) {
         this.schedules = [];
-        this.worklist = this.generateWorklist();
+        this.worklist = this.generateWorklist(courses);
         this.scheduleCourse(0, {});
-        console.log(this.schedules);
     }
 
     /**
      * Generates the worklist for search.
+     * @param {Array} courses 
      * @returns {Array} 
      */
-    generateWorklist() {
+    generateWorklist(courses) {
         let worklist = [];
-        for (let course of this.courses) {
-            let sectionsByTerm = {};
+        for (let course of courses) {
+            let sectionsByType = {};
             for (let section of course.sections) {
-                if (sectionsByTerm[section.term]) {
-                    sectionsByTerm[section.term].push(section);
+                if (sectionsByType[section.type]) {
+                    sectionsByType[section.type].push(section);
                 }
                 else {
-                    sectionsByTerm[section.term] = [section];
+                    sectionsByType[section.type] = [section];
                 }
             }
-            let worklistSections = {};
-            for (let term in sectionsByTerm) {
-                let sectionsByType = {};
-                for (let section of sectionsByTerm[term]) {
-                    if (sectionsByType[section.type]) {
-                        sectionsByType[section.type].push(section);
-                    }
-                    else {
-                        sectionsByType[section.type] = [section];
-                    }
-                }
-                worklistSections[term] = Object.values(sectionsByType);
-            }
-            worklist.push(worklistSections);
+            worklist.push(Object.values(sectionsByType));
         }
         return worklist;
     }
@@ -70,10 +55,7 @@ class Scheduler {
             }
             return;
         }
-        let courseSectionsByTerm = this.worklist[n];
-        for (let term in courseSectionsByTerm) {
-            this.scheduleCourseSections(n, courseSectionsByTerm[term], schedule);
-        }
+        this.scheduleCourseSections(n, this.worklist[n], schedule);
     }
 
     scheduleCourseSections(n, sectionsByType, schedule) {

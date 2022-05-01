@@ -1,31 +1,32 @@
 <template>
     <div>
-        <div class="mb-5" v-for="term in 2" :key="term">
-            <div class="text-h6">Term {{ term }}</div>
-            <table class="schedule-table">
-                <colgroup>
-                    <col v-for="i in 8" :key="i" />
-                </colgroup>
-                <tr class="table-header">
-                    <th class="time empty"></th>
-                    <th :class="'section' + ((day === 'Sun' || day === 'Sat') ? ' weekend' : '')" v-for="day in days" :key="day">{{ day }}</th>
-                </tr>
-                <tr v-for="(time, ind) in times" :key="ind">
-                    <td v-if="ind % 2 === 0">{{ time }}</td>
-                    <td class="empty" v-else>&nbsp;</td>
-                    <template v-for="day in days">
+        <v-row>
+            <v-col class="mb-5" v-for="term in 2" :key="term">
+                <div class="text-h6 text-center">Term {{ term }}</div>
+                <table class="schedule-table">
+                    <colgroup>
+                        <col v-for="i in 8" :key="i" />
+                    </colgroup>
+                    <tr class="table-header">
+                        <th class="time empty"></th>
+                        <th :class="'section' + ((day === 'Sun' || day === 'Sat') ? ' weekend' : '')" v-for="day in days" :key="day">{{ day }}</th>
+                    </tr>
+                    <tr v-for="(time, ind) in times" :key="ind">
+                        <td v-if="ind % 2 === 0">{{ time }}</td>
+                        <td class="empty" v-else>&nbsp;</td>
                         <td 
+                            v-for="day in days"
                             class="empty" 
                             :class="{secondary: schedule.includes(getKey(term,day,time))}" 
-                            :key="day + 'empty'"
+                            :key="day"
                             @mousedown="enableSelection(getKey(term, day, time))"
                             @mouseup="disableSelection"
                             @mouseover="selectOnHover(getKey(term, day, time))"
                         >&nbsp;</td>
-                    </template>
-                </tr>
-            </table>
-        </div>
+                    </tr>
+                </table>
+            </v-col>
+        </v-row>
     </div>
 </template>
 
@@ -34,8 +35,6 @@ import { getTimeArray, getTimeRange } from '../util/schedule-utils';
 
 export default {
     name: 'timeslotTable',
-    props: {
-    },
     data() {
         return {
             days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -54,8 +53,9 @@ export default {
             this.selectOnDrag = true;
             if (this.schedule.includes(key)) {
                 this.schedule = this.schedule.filter(item => item !== key )
-            } else
+            } else {
                 this.schedule.push(key);
+            }
         },
         selectOnHover(key) {
             if (!this.selectOnDrag) return;
@@ -87,11 +87,11 @@ export default {
     }
 
     .time {
-        width: 5%;
+        width: 20%;
     }
 
     .section:not(.weekend) {
-        width: 15%;
+        width: 12%;
     }
 
     .section.weekend {

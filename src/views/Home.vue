@@ -53,7 +53,7 @@
                 <v-stepper-content step="2">
                     <v-container class="min-height">
                         <v-row>
-                            <v-col v-if="!toggleTimeslotTable" cols="6">
+                            <v-col cols="6">
                                 <div class="text-h6 my-5 text-center">Choose Preferred Term</div>
                                 <v-list>
                                     <v-list-item v-for="course in preferences.courseTerms" :key="course.id">
@@ -69,24 +69,23 @@
                                     </v-list-item>
                                 </v-list>
                             </v-col>
-                            <v-col v-if="toggleTimeslotTable">
-                                <div class="text-h6 my-5 text-center">Choose Preferred Timeslot</div>
-                                <timeslotTable :courses="coursesToSchedule" />
+                            <v-col cols="6">
+                                
                             </v-col>
                         </v-row>
-                        <div>
-                            <v-btn color="primary" @click="toggleTimeslotTable = true" :disabled="toggleTimeslotTable">Next</v-btn>
-                            <v-btn color="secondary" @click="toggleTimeslotTable = false" text class="ml-3" :disabled="!toggleTimeslotTable">Back</v-btn>
+                        <div class="my-5">
+                            <div class="text-h6 my-5 text-center">Choose Preferred Timeslot</div>
+                            <timeslot-table />
                         </div>
                     </v-container>
                     <div>
-                        <v-btn color="primary" @click="nextStep(3)">Continue</v-btn>
+                        <v-btn color="primary" @click="generateSchedules" :loading="isGeneratingSchedules">Continue</v-btn>
                         <v-btn color="secondary" @click="step = 1" text class="ml-3">Back</v-btn>
                     </div>
                 </v-stepper-content>
                 <v-stepper-content step="3">
                     <v-container class="min-height">
-                        <schedules :courses="coursesToSchedule" />
+                        <schedules :schedules="schedules" />
                     </v-container>
                     <div>
                         <v-btn color="primary" @click="step = 3" disabled>Continue</v-btn>
@@ -104,6 +103,7 @@ import Schedules from '../components/Schedules.vue'
 import TimeslotTable from '../components/TimeslotTable.vue'
 import ubc2021W from '../course-lib/ubc-2021W.json'
 import { getTermDistribution } from '../util/schedule-utils'
+import Scheduler from '../util/Scheduler';
 
 export default {
     name: 'home',
@@ -129,24 +129,37 @@ export default {
                 { text: 'End Time', value: 'end_time' }
             ],
 
-            coursesToSchedule: [],
             preferences: {
-                courseTerms: [],
-                terms: []
+                courseTerms: []
             },
-            toggleTimeslotTable: false,
+
+            isGeneratingSchedules: false,
+            scheduler: null,
+            schedules: [],
         }
     },
     created() {
         this.courses = ubc2021W
     },
     methods: {
+        generateSchedules() {
+            if (this.isGeneratingSchedules) return;
+            this.isGeneratingSchedules = true;
+            let coursesToBeScheduled = this.preferences.courseTerms.map(v => ({
+                id: v.id,
+                sections: v.sections[v.term]
+            }));
+            if (!this.scheduler) this.scheduler = new Scheduler();
+            this.scheduler.generateAllSchedules(coursesToBeScheduled);
+            this.schedules = this.scheduler.schedules;
+            this.nextStep(3);
+        },
         nextStep(n) {
             if (n === 2) {
                 this.preferences.courseTerms = getTermDistribution(this.selectedCourses);
             }
             else if (n === 3) {
-                this.coursesToSchedule = [...this.selectedCourses];
+                this.isGeneratingSchedules = false;
             }
             this.step = n;
         },

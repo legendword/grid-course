@@ -10,36 +10,22 @@
 </template>
 
 <script>
-import Scheduler from '../util/Scheduler';
 import Schedule from './Schedule.vue';
 
 export default {
     name: 'schedules',
     components: { Schedule },
     props: {
-        courses: Array
+        schedules: Array
+    },
+    watch: {
+        schedules() {
+            this.page = 1;
+        }
     },
     data() {
         return {
-            scheduler: null,
-            schedules: [],
             page: 1
-        }
-    },
-    watch: {
-        courses: {
-            handler(val) {
-                if (val.length !== 0) {
-                    this.scheduler = new Scheduler(this.courses);
-                    this.scheduler.generateAllSchedules();
-                    this.schedules = this.scheduler.schedules;
-                }
-            },
-            immediate: true
-        }
-    },
-    methods: {
-        startSchedule() {
         }
     }
 }
