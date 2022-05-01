@@ -2,6 +2,9 @@
     <v-app>
         <v-navigation-drawer app expand-on-hover>
             <v-list-item>
+                <v-list-item-icon>
+                    <v-img src="GridCourse-01.png" width="24px" height="24px" />
+                </v-list-item-icon>
                 <v-list-item-content>
                     <v-list-item-title class="text-h6">
                         GridCourse
