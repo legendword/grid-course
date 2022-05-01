@@ -17,11 +17,11 @@
                         <td 
                             v-for="day in days"
                             class="empty" 
-                            :class="{secondary: schedule.includes(getKey(term,day,time))}" 
+                            :class="{secondary: selected.includes(getKey(term,day,time))}" 
                             :key="day"
-                            @mousedown="enableSelection(getKey(term, day, time))"
+                            @mousedown="enableSelection(term, day, time)"
                             @mouseup="disableSelection"
-                            @mouseover="selectOnHover(getKey(term, day, time))"
+                            @mouseover="selectOnHover(term, day, time)"
                         >&nbsp;</td>
                     </tr>
                 </table>
@@ -31,38 +31,68 @@
 </template>
 
 <script>
-import { getTimeArray, getTimeRange } from '../util/schedule-utils';
+import { getTimeArray } from '../util/schedule-utils';
+import Timeslot from '../util/Timeslot';
+import _union from 'lodash/union';
+import _difference from 'lodash/difference';
 
 export default {
     name: 'timeslotTable',
+    props: {
+        timeRange: Object
+    },
     data() {
         return {
             days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
             times: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"],
-            schedule: [],
-            selectOnDrag: false
+            selected: [],
+            selectOnDrag: false,
+            selectMode: true, // true: select, false: deselect
+            initialSelectTimeslot: null
         }
     },
     watch: {
+        timeRange(val) {
+            if (val) {
+                this.times = getTimeArray(val);
+                this.selected = [];
+            }
+        }
     },
     methods: {
         getKey(term, day, time) {
             return term + ':' + day + ';' + time;
         },
-        enableSelection(key) { //on mouse down
+        enableSelection(term, day, time) { //on mouse down
+            this.initialSelectTimeslot = new Timeslot(term, day, time);
             this.selectOnDrag = true;
-            if (this.schedule.includes(key)) {
-                this.schedule = this.schedule.filter(item => item !== key )
+            let key = this.getKey(term, day, time);
+            if (this.selected.includes(key)) {
+                this.selectMode = false;
+                this.selected = this.selected.filter(item => item !== key )
             } else {
-                this.schedule.push(key);
+                this.selectMode = true;
+                this.selected.push(key);
             }
         },
-        selectOnHover(key) {
+        selectOnHover(term, day, time) {
             if (!this.selectOnDrag) return;
-            if (this.schedule.includes(key)) {
-                this.schedule = this.schedule.filter(item => item !== key )
-            } else
-                this.schedule.push(key);
+            let ts = new Timeslot(term, day, time);
+            let cells = this.initialSelectTimeslot.boxSelectionTo(ts);
+            console.log(cells);
+            if (this.selectMode) {
+                this.selected = _union(this.selected, cells);
+            }
+            else {
+                this.selected = _difference(this.selected, cells);
+            }
+            /*
+            if (this.selected.includes(key)) {
+                this.selected = this.selected.filter(item => item !== key )
+            } else {
+                this.selected.push(key);
+            }
+            */
         },
         disableSelection() { //on mouse up
             this.selectOnDrag = false;

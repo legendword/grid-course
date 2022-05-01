@@ -74,8 +74,8 @@
                             </v-col>
                         </v-row>
                         <div class="my-5">
-                            <div class="text-h6 my-5 text-center">Choose Preferred Timeslot</div>
-                            <timeslot-table />
+                            <div class="text-h6 my-5 text-center">Choose Preferred Timeslots</div>
+                            <timeslot-table :timeRange="preferences.courseTimeRange" />
                         </div>
                     </v-container>
                     <div>
@@ -102,7 +102,7 @@
 import Schedules from '../components/Schedules.vue'
 import TimeslotTable from '../components/TimeslotTable.vue'
 import ubc2021W from '../course-lib/ubc-2021W.json'
-import { getTermDistribution } from '../util/schedule-utils'
+import { getCourseTimeRange, getTermDistribution } from '../util/schedule-utils'
 import Scheduler from '../util/Scheduler';
 
 export default {
@@ -130,7 +130,8 @@ export default {
             ],
 
             preferences: {
-                courseTerms: []
+                courseTerms: [],
+                courseTimeRange: null
             },
 
             isGeneratingSchedules: false,
@@ -157,6 +158,7 @@ export default {
         nextStep(n) {
             if (n === 2) {
                 this.preferences.courseTerms = getTermDistribution(this.selectedCourses);
+                this.preferences.courseTimeRange = getCourseTimeRange(this.selectedCourses);
             }
             else if (n === 3) {
                 this.isGeneratingSchedules = false;

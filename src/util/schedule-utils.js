@@ -1,6 +1,28 @@
 import { timeCompare } from './time-utils';
 import Timeslot from './Timeslot';
 
+export const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/**
+ * Get the minimum and maximum time that appeared in the list of courses
+ * @param {Array} courses 
+ * @returns {{min: string, max: string}}
+ */
+export const getCourseTimeRange = (courses) => {
+    let minTime = "09:00";
+    let maxTime = "16:30";
+    for (let course of courses) {
+        for (let section of course.sections) {
+            if (timeCompare(section.start_time, minTime) < 0) {
+                minTime = section.start_time;
+            }
+            else if (timeCompare(section.end_time, maxTime) > 0) {
+                maxTime = section.end_time;
+            }
+        }
+    }
+    return {min: minTime, max: maxTime};
+};
 /**
  * Get the minimum and maximum time that appeared in the schedule
  * @param {Object} schedule 
