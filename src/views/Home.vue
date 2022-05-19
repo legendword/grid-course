@@ -1,7 +1,7 @@
 <template>
     <div class="home">
         <v-stepper v-model="step" flat>
-            <v-stepper-header>
+            <v-stepper-header class="no-print">
                 <v-stepper-step :complete="step > 1" step="1">Select Courses</v-stepper-step>
                 <v-divider />
                 <v-stepper-step :complete="step > 2" step="2">Set Preferences</v-stepper-step>

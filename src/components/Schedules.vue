@@ -3,7 +3,7 @@
         <div>
             <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" />
         </div>
-        <div class="text-center">
+        <div class="text-center no-print">
             <v-pagination v-model="page" :length="schedules.length" />
         </div>
     </div>

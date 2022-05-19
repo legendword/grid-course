@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <v-navigation-drawer app expand-on-hover>
+        <v-navigation-drawer app expand-on-hover class="no-print">
             <v-list-item>
                 <v-list-item-icon>
                     <v-img src="GridCourse-01.png" width="24px" height="24px" />
@@ -44,3 +44,11 @@ export default {
     }),
 };
 </script>
+
+<style>
+@media print {
+    .no-print, .no-print * {
+        display: none !important;
+    }
+}
+</style>
