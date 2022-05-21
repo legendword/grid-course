@@ -1,7 +1,10 @@
 <template>
     <div>
+        <div class="text-center no-print">
+            <v-pagination v-model="page" :length="schedules.length" />
+        </div>
         <div>
-            <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" />
+            <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" :session="session" />
         </div>
         <div class="text-center no-print">
             <v-pagination v-model="page" :length="schedules.length" />
@@ -16,7 +19,11 @@ export default {
     name: 'schedules',
     components: { Schedule },
     props: {
-        schedules: Array
+        schedules: Array,
+        session: {
+            type: String,
+            required: true
+        }
     },
     watch: {
         schedules() {

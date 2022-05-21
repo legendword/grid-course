@@ -1,42 +1,53 @@
 <template>
     <div>
-        <div class="mb-5" v-for="term in 2" :key="term">
-            <div class="text-h6">Term {{ term }}</div>
-            <table class="schedule-table">
-                <colgroup>
-                    <col v-for="i in 8" :key="i" />
-                </colgroup>
-                <tr class="table-header">
-                    <th class="time empty"></th>
-                    <th :class="'section' + ((day === 'Sun' || day === 'Sat') ? ' weekend' : '')" v-for="day in days" :key="day">{{ day }}</th>
-                </tr>
-                <tr v-for="(time, ind) in times" :key="ind">
-                    <td v-if="ind % 2 === 0">{{ time }}</td>
-                    <td class="empty" v-else>&nbsp;</td>
-                    <template v-for="day in days">
-                        <td v-if="schedule[getKey(term, day, time)] && (typeof schedule[getKey(term, day, time)]) === 'object'" :key="day" :rowspan="schedule[getKey(term, day, time)].span">
-                            <v-card class="section-card secondary">
-                                <v-card-text class="section-text white--text" style="padding: 0 !important;">
-                                    <div class="section-name">{{ schedule[getKey(term, day, time)].id }}</div>
-                                    <div class="text-subtitle-1">{{ schedule[getKey(term, day, time)].type }}</div>
-                                </v-card-text>
-                            </v-card>
-                        </td>
-                        <td class="empty" v-else-if="!schedule[getKey(term, day, time)]" :key="day + 'empty'">&nbsp;</td>
-                    </template>
-                </tr>
-            </table>
+        <div class="text-center my-5">
+            <v-btn color="primary" @click="saveAsImage">Save As Image</v-btn>
+        </div>
+        <div ref="schedule">
+            <div class="mb-5" v-for="term in 2" :key="term">
+                <div class="text-h6 text-center q-mb-md">Term {{ term }}</div>
+                <table class="schedule-table">
+                    <colgroup>
+                        <col v-for="i in 8" :key="i" />
+                    </colgroup>
+                    <tr class="table-header">
+                        <th class="time empty"></th>
+                        <th :class="'section' + ((day === 'Sun' || day === 'Sat') ? ' weekend' : '')" v-for="day in days" :key="day">{{ day }}</th>
+                    </tr>
+                    <tr v-for="(time, ind) in times" :key="ind">
+                        <td v-if="ind % 2 === 0">{{ time }}</td>
+                        <td class="empty" v-else>&nbsp;</td>
+                        <template v-for="day in days">
+                            <td v-if="schedule[getKey(term, day, time)] && (typeof schedule[getKey(term, day, time)]) === 'object'" :key="day" :rowspan="schedule[getKey(term, day, time)].span">
+                                <v-card class="section-card secondary">
+                                    <v-card-text class="section-text white--text" style="padding: 0 !important;">
+                                        <div class="section-name">{{ schedule[getKey(term, day, time)].id }}</div>
+                                        <div class="text-subtitle-1">{{ schedule[getKey(term, day, time)].type }}</div>
+                                    </v-card-text>
+                                </v-card>
+                            </td>
+                            <td class="empty" v-else-if="!schedule[getKey(term, day, time)]" :key="day + 'empty'">&nbsp;</td>
+                        </template>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import { getTimeArray, getTimeRange } from '../util/schedule-utils';
+import html2canvas from 'html2canvas';
+import { saveAs } from 'file-saver';
 
 export default {
     name: 'schedule',
     props: {
-        schedule: Object
+        schedule: Object,
+        session: {
+            type: String,
+            required: true
+        }
     },
     data() {
         return {
@@ -55,6 +66,13 @@ export default {
     methods: {
         getKey(term, day, time) {
             return term + ':' + day + ';' + time;
+        },
+        saveAsImage() {
+            html2canvas(this.$refs.schedule).then(canvas => {
+                canvas.toBlob(blob => {
+                    saveAs(blob, `GridCourse-${this.session}.png`);
+                });
+            });
         }
     }
 }
@@ -66,6 +84,7 @@ export default {
     width: 100%;
     table-layout: fixed;
     text-align: center;
+    border-collapse: collapse;
 
     .table-header {
         height: 40px;
@@ -107,6 +126,10 @@ export default {
 
     tr, th, td {
         height: 30px;
+    }
+
+    th, td {
+        border: 1px solid #DCEDC8;
     }
 }
 </style>

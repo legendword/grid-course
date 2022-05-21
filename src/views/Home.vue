@@ -6,14 +6,14 @@
                 <v-divider />
                 <v-stepper-step :complete="step > 2" step="2">Set Preferences</v-stepper-step>
                 <v-divider />
-                <v-stepper-step :complete="step > 3" step="3">Finalize Timetables</v-stepper-step>
+                <v-stepper-step :complete="step > 3" step="3">View Timetables</v-stepper-step>
             </v-stepper-header>
             <v-stepper-items>
                 <v-stepper-content step="1">
                     <div class="session-select">
                         <v-select :items="sessions" label="Session" solo v-model="session" />
                     </div>
-                    <v-container>
+                    <v-container fluid>
                         <div class="min-height">
                             <v-row>
                                 <v-col cols="3">
@@ -55,7 +55,7 @@
                     
                 </v-stepper-content>
                 <v-stepper-content step="2">
-                    <v-container>
+                    <v-container fluid>
                         <div class="min-height">
                             <v-row>
                                 <v-col cols="6">
@@ -91,8 +91,8 @@
                     </v-container>
                 </v-stepper-content>
                 <v-stepper-content step="3">
-                    <v-container class="min-height">
-                        <schedules :schedules="schedules" />
+                    <v-container fluid class="min-height">
+                        <schedules :schedules="schedules" :session="session" />
 
                         <div>
                             <v-btn color="primary" @click="step = 3" disabled>Continue</v-btn>
