@@ -1,5 +1,10 @@
 <template>
     <div>
+        <div class="my-5 d-flex justify-center">
+            <v-btn class="mx-3" color="primary" @click="selectAll">Select All</v-btn>
+            <v-btn class="mx-3" color="primary" outlined @click="deselectAll">Deselect All</v-btn>
+        </div>
+        <div class="my-5 text-center grey--text text--lighten-1">Drag to select, or click row / column headers to select.</div>
         <v-row>
             <v-col class="mb-5" v-for="term in 2" :key="term">
                 <div class="text-h6 text-center">Term {{ term }}</div>
@@ -9,16 +14,27 @@
                     </colgroup>
                     <tr class="table-header">
                         <th class="time empty"></th>
-                        <th :class="'section' + ((day === 'Sun' || day === 'Sat') ? ' weekend' : '')" v-for="day in days" :key="day">{{ day }}</th>
+                        <th v-for="day in days"
+                            :key="day"
+                            class="section clickable"
+                            :class="{weekend: day === 'Sun' || day === 'Sat'}"
+                            @click="selectDay(term, day)" 
+                        >{{ day }}</th>
                     </tr>
                     <tr v-for="(time, ind) in times" :key="ind">
-                        <td v-if="ind % 2 === 0">{{ time }}</td>
-                        <td class="empty" v-else>&nbsp;</td>
+                        <td v-if="ind % 2 === 0"
+                            class="clickable"
+                            @click="selectTime(term, time)"
+                        >{{ time }}</td>
+                        <td v-else
+                            class="clickable empty"
+                            @click="selectTime(term, time)"
+                        >&nbsp;</td>
                         <td 
                             v-for="day in days"
-                            class="empty" 
-                            :class="{secondary: selected.includes(getKey(term,day,time))}" 
                             :key="day"
+                            class="cell empty" 
+                            :class="{selected: selected.includes(getKey(term,day,time))}"
                             @mousedown="enableSelection(term, day, time)"
                             @mouseup="disableSelection"
                             @mouseover="selectOnHover(term, day, time)"
@@ -66,7 +82,7 @@ export default {
         enableSelection(term, day, time) { //on mouse down
             this.initialSelectTimeslot = new Timeslot(term, day, time);
             this.selectOnDrag = true;
-            let key = this.getKey(term, day, time);
+            const key = this.getKey(term, day, time);
             if (this.selected.includes(key)) {
                 this.selectMode = false;
                 this.selected = this.selected.filter(item => item !== key )
@@ -77,8 +93,8 @@ export default {
         },
         selectOnHover(term, day, time) {
             if (!this.selectOnDrag) return;
-            let ts = new Timeslot(term, day, time);
-            let cells = this.initialSelectTimeslot.boxSelectionTo(ts);
+            const ts = new Timeslot(term, day, time);
+            const cells = this.initialSelectTimeslot.boxSelectionTo(ts);
             if (this.selectMode) {
                 this.selected = _union(this.selected, cells);
             }
@@ -88,8 +104,43 @@ export default {
         },
         disableSelection() { //on mouse up
             this.selectOnDrag = false;
+        },
+        selectDay(term, day) {
+            const from = new Timeslot(term, day, this.times[0]);
+            const to = new Timeslot(term, day, this.times[this.times.length-1]);
+            const cells = from.boxSelectionTo(to);
+            const firstKey = this.getKey(term, day, this.times[0]);
+            if (this.selected.includes(firstKey)) {
+                this.selected = _difference(this.selected, cells);
+            }
+            else {
+                this.selected = _union(this.selected, cells);
+            }
+        },
+        selectTime(term, time) {
+            const from = new Timeslot(term, this.days[0], time);
+            const to = new Timeslot(term, this.days[this.days.length-1], time);
+            const cells = from.boxSelectionTo(to);
+            const firstKey = this.getKey(term, this.days[0], time);
+            if (this.selected.includes(firstKey)) {
+                this.selected = _difference(this.selected, cells);
+            }
+            else {
+                this.selected = _union(this.selected, cells);
+            }
+        },
+        selectAll() {
+            let cells = [];
+            for (let term = 1; term <= 2; term++) {
+                const from = new Timeslot(term, this.days[0], this.times[0]);
+                const to = new Timeslot(term, this.days[this.days.length-1], this.times[this.times.length-1]);
+                cells.push(from.boxSelectionTo(to));
+            }
+            this.selected = [...cells[0], ...cells[1]];
+        },
+        deselectAll() {
+            this.selected = [];
         }
-
     }
 }
 </script>
@@ -100,6 +151,8 @@ export default {
     width: 100%;
     table-layout: fixed;
     text-align: center;
+    border-collapse: collapse;
+
     & * {
         user-select: none;
     }
@@ -112,12 +165,13 @@ export default {
         width: 20%;
     }
 
-    .section:not(.weekend) {
-        width: 12%;
-    }
-
-    .section.weekend {
-        width: 10%;
+    .section {
+        &:not(.weekend) {
+            width: 12%;
+        }
+        &.weekend {
+            width: 10%;
+        }
     }
 
     .section-card {
@@ -131,8 +185,21 @@ export default {
     tr, th, td {
         height: 30px;
     }
+
+    th, td {
+        border: 1px solid #DCEDC8;
+    }
+
+    .cell {
+        cursor: cell;
+    }
+
+    .clickable {
+        cursor: pointer;
+    }
+
     .selected {
-        background: #919d84 !important;
+        background: #69a03a !important;
     }
 }
 </style>
