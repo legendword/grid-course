@@ -17,7 +17,18 @@
                         <div class="min-height">
                             <v-row>
                                 <v-col cols="3">
-                                    <v-autocomplete class="my-2" :items="courses" return-object item-text="id" editable height="50px" label="Add Courses..." :value="courseToAdd" @input="addCourse($event)" />
+                                    <v-autocomplete
+                                        class="my-2 pa-2"
+                                        clearable
+                                        :items="courses"
+                                        return-object
+                                        item-text="id"
+                                        editable
+                                        height="50px"
+                                        label="Add Courses..."
+                                        :value="courseToAdd"
+                                        @input="addCourse($event)"
+                                    />
                                     <v-subheader>Selected Courses ({{ selectedCourses.length }})</v-subheader>
                                     <div v-if="selectedCourses.length === 0">
                                         <v-subheader>No selected courses.</v-subheader>
@@ -41,7 +52,22 @@
                                     <div v-if="cur !== null && selectedCourses[cur]">
                                         <h2>{{ selectedCourses[cur].id }}</h2>
                                         <v-subheader>Sections ({{ selectedCourses[cur].sections.length }})</v-subheader>
-                                        <v-data-table v-model="selectedSections" :headers="headers" :items="selectedCourses[cur].sections" show-select :single-select="false" class="elevation-1" />
+                                        <!--
+                                        <v-data-table
+                                            v-model="selectedSections"
+                                            :headers="headers"
+                                            :items="selectedCourses[cur].sections"
+                                            show-select
+                                            :single-select="false"
+                                            class="elevation-1"
+                                        />
+                                        -->
+                                        <v-data-table
+                                            v-model="selectedSections"
+                                            :headers="headers"
+                                            :items="selectedCourses[cur].sections"
+                                            class="elevation-1"
+                                        />
                                     </div>
                                 </v-col>
                             </v-row>
@@ -58,12 +84,12 @@
                     <v-container fluid>
                         <div class="min-height">
                             <v-row>
-                                <v-col cols="6">
+                                <v-col cols="12">
                                     <div class="text-h6 my-5 text-center">Choose Preferred Term</div>
-                                    <v-list>
+                                    <v-list max-width="600" class="mx-auto">
                                         <v-list-item v-for="course in preferences.courseTerms" :key="course.id">
                                             <v-list-item-content>
-                                                <v-list-item-title>{{ course.id }}</v-list-item-title>
+                                                <v-list-item-title class="font-weight-medium">{{ course.id }}</v-list-item-title>
                                             </v-list-item-content>
                                             <v-list-item-action>
                                                 <v-btn-toggle v-model="course.term" mandatory color="primary" borderless>
@@ -74,9 +100,11 @@
                                         </v-list-item>
                                     </v-list>
                                 </v-col>
+                                <!--
                                 <v-col cols="6">
                                     
                                 </v-col>
+                                -->
                             </v-row>
                             <div class="my-5">
                                 <div class="text-h6 my-5 text-center">Choose Preferred Timeslots</div>
