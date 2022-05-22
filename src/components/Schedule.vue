@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import { getTimeArray, getTimeRange } from '../util/schedule-utils';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
@@ -43,11 +44,7 @@ import { saveAs } from 'file-saver';
 export default {
     name: 'schedule',
     props: {
-        schedule: Object,
-        session: {
-            type: String,
-            required: true
-        }
+        schedule: Object
     },
     data() {
         return {
@@ -55,6 +52,7 @@ export default {
             times: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"]
         }
     },
+    computed: mapState(['session']),
     watch: {
         schedule: {
             handler(val) {

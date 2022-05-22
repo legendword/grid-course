@@ -1,13 +1,13 @@
 <template>
     <div>
-        <div class="text-center no-print">
-            <v-pagination v-model="page" :length="schedules.length" />
+        <div class="my-3 text-center no-print">
+            <v-pagination v-model="page" :length="schedules.length" :total-visible="10" />
         </div>
         <div>
-            <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" :session="session" />
+            <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" />
         </div>
-        <div class="text-center no-print">
-            <v-pagination v-model="page" :length="schedules.length" />
+        <div class="my-3 text-center no-print">
+            <v-pagination v-model="page" :length="schedules.length" :total-visible="10" />
         </div>
     </div>
 </template>
@@ -19,11 +19,7 @@ export default {
     name: 'schedules',
     components: { Schedule },
     props: {
-        schedules: Array,
-        session: {
-            type: String,
-            required: true
-        }
+        schedules: Array
     },
     watch: {
         schedules() {

@@ -1,7 +1,7 @@
 <template>
     <div class="home">
         <v-stepper v-model="step" flat>
-            <v-stepper-header class="no-print">
+            <v-stepper-header class="elevation-0 no-print">
                 <v-stepper-step :complete="step > 1" step="1">Select Courses</v-stepper-step>
                 <v-divider />
                 <v-stepper-step :complete="step > 2" step="2">Set Preferences</v-stepper-step>
@@ -10,11 +10,8 @@
             </v-stepper-header>
             <v-stepper-items>
                 <v-stepper-content step="1">
-                    <div class="session-select">
-                        <v-select :items="sessions" label="Session" solo v-model="session" />
-                    </div>
                     <v-container fluid>
-                        <div class="min-height">
+                        <div class="min-height pb-5">
                             <v-row>
                                 <v-col cols="3">
                                     <v-autocomplete
@@ -120,7 +117,7 @@
                 </v-stepper-content>
                 <v-stepper-content step="3">
                     <v-container fluid class="min-height">
-                        <schedules :schedules="schedules" :session="session" />
+                        <schedules :schedules="schedules" />
 
                         <div>
                             <v-btn color="primary" @click="step = 3" disabled>Continue</v-btn>
@@ -131,17 +128,17 @@
             </v-stepper-items>
         </v-stepper>
         
-        <v-snackbar v-model="snackbars.emptyTimeslotPref" color="orange darken-4" timeout="2000">Please select the preferred timeslots you would to take your courses!</v-snackbar>
+        <v-snackbar v-model="snackbars.emptyTimeslotPref" color="yellow darken-4" timeout="2000">Please select the preferred timeslots you would to take your courses!</v-snackbar>
         <v-snackbar v-model="snackbars.noValidSchedules" color="red darken-3" timeout="2000">There are no valid schedules possible! Consider changing your preferences and try again.</v-snackbar>
+        <v-snackbar v-model="snackbars.tooManySchedules" color="yellow darken-4" timeout="5000">There are too many possible schedules, limiting result to the first 1000. Consider narrowing your conditions to decrease the number of possible schedules.</v-snackbar>
     </div>
 </template>
 
 <script>
-import Schedules from '../components/Schedules.vue'
-import TimeslotTable from '../components/TimeslotTable.vue'
-import ubc2021W from '../course-lib/ubc-2021W.json'
-import ubc2022S from '../course-lib/ubc-2022S.json'
-import { getCourseTimeRange, getTermDistribution } from '../util/schedule-utils'
+import { mapState } from 'vuex';
+import Schedules from '../components/Schedules.vue';
+import TimeslotTable from '../components/TimeslotTable.vue';
+import { getCourseTimeRange, getTermDistribution } from '../util/schedule-utils';
 import Scheduler from '../util/Scheduler';
 
 export default {
@@ -150,10 +147,7 @@ export default {
     data() {
         return {
             step: 1,
-            sessions: ['2021W', '2022S'],
-            session: '2021W',
 
-            courses: [],
             courseToAdd: null,
             cur: null,
             selectedCourses: [],
@@ -180,17 +174,16 @@ export default {
 
             snackbars: {
                 emptyTimeslotPref: false,
-                noValidSchedules: false
+                noValidSchedules: false,
+                tooManySchedules: false
             }
         }
     },
-    created() {
-        this.courses = ubc2021W
+    computed: {
+        ...mapState(['session', 'courses'])
     },
     watch: {
-        session(val) {
-            if (val === '2021W') this.courses = ubc2021W;
-            else if (val === '2022S') this.courses = ubc2022S;
+        session() {
             this.selectedCourses = [];
         }
     },
@@ -215,6 +208,9 @@ export default {
                 this.isGeneratingSchedules = false;
                 this.snackbars.noValidSchedules = true;
                 return;
+            }
+            else if (this.schedules.length === 1000) {
+                this.snackbars.tooManySchedules = true;
             }
             this.nextStep(3);
         },
@@ -247,10 +243,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.session-select {
-    margin: 5px auto;
-    width: 200px;
-}
 .min-height {
     min-height: 50vh;
 }
