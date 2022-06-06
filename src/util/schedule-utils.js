@@ -48,7 +48,7 @@ export const getTimeRange = (schedule) => {
  * @returns {Array}
  */
 export const getTimeArray = (timeRange) => {
-    let ts = new Timeslot("", "", timeRange.min);
+    let ts = new Timeslot(null, null, timeRange.min);
     let res = [];
     while (!ts.equals(timeRange.max)) {
         res.push(ts.toTimeStr());

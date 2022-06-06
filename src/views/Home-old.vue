@@ -89,11 +89,32 @@
                 <v-stepper-content step="2">
                     <v-container fluid>
                         <div class="min-height">
-                            <grid-table v-if="step === 2" :courses="selectedCourses"></grid-table>
+                            <v-row>
+                                <v-col cols="12">
+                                    <div class="text-h6 my-5 text-center">Choose Preferred Term</div>
+                                    <v-list max-width="600" class="mx-auto">
+                                        <v-list-item v-for="course in preferences.courseTerms" :key="course.id">
+                                            <v-list-item-content>
+                                                <v-list-item-title class="font-weight-medium">{{ course.id }}</v-list-item-title>
+                                            </v-list-item-content>
+                                            <v-list-item-action>
+                                                <v-btn-toggle v-model="course.term" mandatory color="primary" borderless>
+                                                    <v-btn :disabled="!course.termChoices.includes('1')" value="1">Term 1</v-btn>
+                                                    <v-btn :disabled="!course.termChoices.includes('2')" value="2">Term 2</v-btn>
+                                                </v-btn-toggle>
+                                            </v-list-item-action>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-col>
+                            </v-row>
+                            <div class="my-5">
+                                <div class="text-h6 my-5 text-center">Choose Preferred Timeslots</div>
+                                <timeslot-table :timeRange="preferences.courseTimeRange" ref="timeslotTable" />
+                            </div>
                         </div>
 
-                        <div class="mt-6">
-                            <v-btn color="primary" @click="generateSchedules" :loading="isGeneratingSchedules" disabled>Continue</v-btn>
+                        <div>
+                            <v-btn color="primary" @click="generateSchedules" :loading="isGeneratingSchedules">Continue</v-btn>
                             <v-btn color="secondary" @click="step = 1" text class="ml-3">Back</v-btn>
                         </div>
                     </v-container>
@@ -110,6 +131,10 @@
                 </v-stepper-content>
             </v-stepper-items>
         </v-stepper>
+        
+        <v-snackbar v-model="snackbars.emptyTimeslotPref" color="yellow darken-4" timeout="2000">Please select the preferred timeslots you would to take your courses!</v-snackbar>
+        <v-snackbar v-model="snackbars.noValidSchedules" color="red darken-3" timeout="2000">There are no valid schedules possible! Consider changing your preferences and try again.</v-snackbar>
+        <v-snackbar v-model="snackbars.tooManySchedules" color="yellow darken-4" timeout="5000">There are too many possible schedules, limiting result to the first 1000. Consider narrowing your conditions to decrease the number of possible schedules.</v-snackbar>
     </div>
 </template>
 
@@ -117,13 +142,13 @@
 import { mapState } from 'vuex';
 import Schedules from '../components/Schedules.vue';
 import TimeslotTable from '../components/TimeslotTable.vue';
-import GridTable from '../components/GridTable.vue';
+import GridCourse from '../components/GridCourse.vue';
 import { getCourseTimeRange, getTermDistribution } from '../util/schedule-utils';
 import Scheduler from '../util/Scheduler';
 
 export default {
     name: 'home',
-    components: { Schedules, TimeslotTable, GridTable },
+    components: { Schedules, TimeslotTable, GridCourse },
     data() {
         return {
             step: 1,
@@ -169,10 +194,35 @@ export default {
     },
     methods: {
         generateSchedules() {
-            
+            if (this.isGeneratingSchedules) return;
+
+            let allowedTimeslots = this.$refs.timeslotTable.selected;
+            if (allowedTimeslots.length === 0) {
+                this.snackbars.emptyTimeslotPref = true;
+                return;
+            }
+
+            this.isGeneratingSchedules = true;
+            let coursesToBeScheduled = this.preferences.courseTerms.map(v => ({
+                id: v.id,
+                sections: v.sections[v.term]
+            }));
+            if (!this.scheduler) this.scheduler = new Scheduler();
+            this.schedules = this.scheduler.generateAllSchedules(coursesToBeScheduled, allowedTimeslots);
+            if (this.schedules.length === 0) {
+                this.isGeneratingSchedules = false;
+                this.snackbars.noValidSchedules = true;
+                return;
+            }
+            else if (this.schedules.length === 1000) {
+                this.snackbars.tooManySchedules = true;
+            }
+            this.nextStep(3);
         },
         nextStep(n) {
             if (n === 2) {
+                this.preferences.courseTerms = getTermDistribution(this.selectedCourses);
+                this.preferences.courseTimeRange = getCourseTimeRange(this.selectedCourses);
             }
             else if (n === 3) {
                 this.isGeneratingSchedules = false;
@@ -198,6 +248,6 @@ export default {
 
 <style lang="scss" scoped>
 .min-height {
-    min-height: calc( 100vh - 220px );
+    min-height: 50vh;
 }
 </style>

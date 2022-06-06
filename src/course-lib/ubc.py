@@ -9,11 +9,16 @@ import json
 import requests
 from bs4 import BeautifulSoup
 import time
+from os.path import exists
 
 headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'Accept-Encoding': 'gzip, deflate, br', 'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7', 'Cache-Control': 'max-age=0', 'Sec-Ch-Ua': '" Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"', 'Sec-Ch-Ua-Mobile': '?0', 'Sec-Ch-Ua-Platform': '"macOS"', 'Sec-Fetch-Dest': 'document', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-Site': 'none', 'Sec-Fetch-User': '?1', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.83 Safari/537.36'}
 
 session_year = '2022'
-session_cd = 'S'
+session_cd = 'W'
+
+res_file_name = f'ubc-{session_year}{session_cd}.json'
+skipped_file_name = f'ubc-{session_year}{session_cd}-skipped.json'
+progress_file_name = f'ubc-{session_year}{session_cd}-progress.log'
 
 #print(requests.get('https://legendword.com/files/print-headers.php', headers=headers).text)
 
@@ -75,29 +80,57 @@ if __name__ == '__main__':
     res = []
     skipped = []
     subjects = fetch_subjects()
+    subject_counter = 0
+    subject_total = len(subjects)
+    fast_forward = False
+    fast_forward_to = None
+    if exists(progress_file_name):
+        with open('ubc-2021W.json', 'r') as f:
+            fast_forward = True
+            fast_forward_to = f.read().strip()
     time.sleep(2)
     for s in subjects:
+        subject_counter += 1
+        if fast_forward:
+            if s == fast_forward_to:
+                fast_forward = False
+            continue
         courses = fetch_courses(s)
+        course_counter = 0
+        course_total = len(courses)
+        print(f'SUBJECT {s} ({subject_counter}/{subject_total})')
         time.sleep(2)
         for c in courses:
-            print(s, c)
+            course_counter += 1
+            print(f'  {s} {c} ({course_counter}/{course_total})')
             sections = None
             try:
                 sections = fetch_sections(s, c)
             except:
-                print('[skipped due to error]')
+                print('   - [ERROR]')
                 skipped.append({'subject': s, 'course': c})
+                time.sleep(2)
                 continue
 
             if sections == None:
-                print('[all sections skipped]')
+                print('   - [SKIPPED]')
             else:
                 res.append({'id': s + ' ' + c, 'subject': s, 'course': c, 'sections': sections})
             
             time.sleep(2)
+        if subject_counter % 10 == 0:
+            # save results in case program does not finish
+            with open(skipped_file_name, 'w') as f:
+                f.write(json.dumps(skipped))
+            with open(res_file_name, 'w') as f:
+                f.write(json.dumps(res))
+            with open(progress_file_name, 'w') as f:
+                f.write(s)
     # print('[skipped courses]')
     # print(skipped)
     print('[writing to file]')
-    with open('ubc-' + session_year + session_cd + '.json', 'w') as f:
+    with open(skipped_file_name, 'w') as f:
+        f.write(json.dumps(skipped))
+    with open(res_file_name, 'w') as f:
         f.write(json.dumps(res))
     print('[program finished]')

@@ -2,6 +2,7 @@ import { timeCompare } from "./time-utils";
 import { days } from "./schedule-utils";
 
 class Timeslot {
+    timeOnly = false;
     term;
     day;
     hour;
@@ -13,6 +14,7 @@ class Timeslot {
      * @param {string} timestr 
      */
     constructor(term, day, timestr) {
+        if (!term && !day) this.timeOnly = true;
         this.term = term;
         this.day = day;
         let s = timestr.split(":");
@@ -26,6 +28,7 @@ class Timeslot {
      * @returns {string}
      */
     toKey() {
+        if (this.timeOnly) return this.toTimeStr();
         return this.term + ":" + this.day + ";" + this.toTimeStr();
     }
 
@@ -76,6 +79,7 @@ class Timeslot {
      * advance Timeslot to next day
      */
     nextDay() {
+        if (this.timeOnly) return false;
         let i = days.indexOf(this.day);
         if (i === days.length - 1) throw Error("Day advanced into next week.");
         this.day = days[i + 1];
@@ -106,6 +110,7 @@ class Timeslot {
      * @returns {number}
      */
     compareDay(ts) {
+        if (this.timeOnly) return null;
         return days.indexOf(this.day) - days.indexOf(ts.day);
     }
 
@@ -116,6 +121,7 @@ class Timeslot {
      * @returns {Array<string>}
      */
     boxSelectionTo(ts) {
+        if (this.timeOnly) return [];
         if (this.term !== ts.term) return [];
 
         let compTime = this.compareTime(ts);

@@ -3,7 +3,7 @@ import Timeslot from './Timeslot';
 class Scheduler {
     schedules;
 
-    constructor(courses) {
+    constructor() {
         this.schedules = null;
     }
 

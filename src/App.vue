@@ -68,12 +68,23 @@
         <v-main>
             <router-view />
         </v-main>
+
+        <v-dialog v-model="mobileDialog" persistent width="600">
+            <v-card class="pt-4">
+                <v-card-text>GridCourse requires sufficient screen space. Please use this tool in a desktop / tablet browser.</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="error" text @click="mobileDialog = false">I understand. Continue anyways.</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-app>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import { sessionNames } from './store';
+import isMobile from './util/isMobile';
 
 export default {
     name: 'App',
@@ -87,7 +98,8 @@ export default {
         return {
             drawer: false,
             sessionNames,
-            selectedSessionIndex: 0
+            selectedSessionIndex: 0,
+            mobileDialog: false
         }
     },
     computed: {
@@ -97,6 +109,9 @@ export default {
         selectedSessionIndex(i) {
             this.$store.commit('updateSession', this.sessionNames[i]);
         }
+    },
+    mounted() {
+        if (isMobile()) this.mobileDialog = true;
     }
 };
 </script>
