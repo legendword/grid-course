@@ -89,18 +89,24 @@
                 <v-stepper-content step="2">
                     <v-container fluid>
                         <div class="min-height">
-                            <grid-table v-if="step === 2" :courses="selectedCourses"></grid-table>
+                            <grid-table v-if="step === 2" :courses="selectedCourses" @save="saveSchedule"></grid-table>
                         </div>
 
                         <div class="mt-6">
-                            <v-btn color="primary" @click="generateSchedules" :loading="isGeneratingSchedules" disabled>Continue</v-btn>
+                            <v-btn color="primary" @click="nextStep(3)">View Saved Schedules</v-btn>
                             <v-btn color="secondary" @click="step = 1" text class="ml-3">Back</v-btn>
                         </div>
                     </v-container>
                 </v-stepper-content>
                 <v-stepper-content step="3">
-                    <v-container fluid class="min-height">
-                        <schedules :schedules="schedules" />
+                    <v-container fluid>
+                        <schedules v-if="schedules.length" :schedules="schedules"></schedules>
+                        <div v-else class="min-height center-block">
+                            <div>
+                                <div class="mb-6 text-h6">There are no saved schedules yet.</div>
+                                <div class="text-subtitle-1">Press the "Save Schedules" button on the top left of the Grid Table in the previous step after you have selected a section for each course to save a schedule.</div>
+                            </div>
+                        </div>
 
                         <div>
                             <v-btn color="primary" @click="step = 3" disabled>Continue</v-btn>
@@ -118,8 +124,6 @@ import { mapState } from 'vuex';
 import Schedules from '../components/Schedules.vue';
 import TimeslotTable from '../components/TimeslotTable.vue';
 import GridTable from '../components/GridTable.vue';
-import { getCourseTimeRange, getTermDistribution } from '../util/schedule-utils';
-import Scheduler from '../util/Scheduler';
 
 export default {
     name: 'home',
@@ -143,20 +147,7 @@ export default {
                 { text: 'End Time', value: 'end_time' }
             ],
 
-            preferences: {
-                courseTerms: [],
-                courseTimeRange: null
-            },
-
-            isGeneratingSchedules: false,
-            scheduler: null,
             schedules: [],
-
-            snackbars: {
-                emptyTimeslotPref: false,
-                noValidSchedules: false,
-                tooManySchedules: false
-            }
         }
     },
     computed: {
@@ -168,15 +159,10 @@ export default {
         }
     },
     methods: {
-        generateSchedules() {
-            
+        saveSchedule(schedule) {
+            this.schedules.push(schedule);
         },
         nextStep(n) {
-            if (n === 2) {
-            }
-            else if (n === 3) {
-                this.isGeneratingSchedules = false;
-            }
             this.step = n;
         },
         addCourse(course) {
@@ -192,12 +178,27 @@ export default {
             this.selectedCourses.splice(ind, 1)
             this.cur = ncur
         }
-    }
+    },
+    mounted() {
+        if (this.$route.query.hasOwnProperty("dev")) {
+            const presetCourseIds = ["MATH 200", "STAT 200", "CPSC 221", "MATH 223", "STAT 201", "STAT 302", "STAT 300"];
+            for (const id of presetCourseIds) {
+                this.addCourse(this.courses.find(course => course.id === id));
+            }
+        }
+    },
 }
 </script>
 
 <style lang="scss" scoped>
 .min-height {
     min-height: calc( 100vh - 220px );
+}
+.center-block {
+    height: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

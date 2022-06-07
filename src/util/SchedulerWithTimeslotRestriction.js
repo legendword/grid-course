@@ -12,8 +12,9 @@ class Scheduler {
      * Produces all possible schedules (stored in this.schedules)
      * @param {Array} courses
      */
-    generateAllSchedules(courses) {
+    generateAllSchedules(courses, allowedTimeslots) {
         this.schedules = [];
+        this.allowedTimeslots = allowedTimeslots;
         this.worklist = this.generateWorklist(courses);
         this.scheduleCourse(0, {});
         return this.schedules;
@@ -87,14 +88,14 @@ class Scheduler {
             let ts = new Timeslot(section.term, day, section.start_time);
 
             let firstKey = ts.toKey();
-            if (res[firstKey]) return false;
+            if (res[firstKey] || !this.allowedTimeslots.includes(firstKey)) return false;
             res[firstKey] = section; // store the entire seciton object for first timeslot
             ts.next();
             let span = 1; // number of timeslots the section spans
 
             while (!ts.equals(section.end_time)) {
                 let key = ts.toKey();
-                if (res[key]) return false;
+                if (res[key] || !this.allowedTimeslots.includes(firstKey)) return false;
                 res[key] = section.id; // store only the section id for subsequent timeslots
                 ++span;
                 ts.next();

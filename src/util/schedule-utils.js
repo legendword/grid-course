@@ -91,4 +91,74 @@ export const getTermDistribution = (courses) => {
         res.push(c);
     }
     return res;
-}
+};
+/**
+ * Whether the section can be added to schedule.
+ * @param {object} section 
+ * @param {object} schedule 
+ * @returns {boolean}
+ */
+ export const canAddToSchedule = (section, schedule) => {
+    for (let day of section.days) {
+        let ts = new Timeslot(section.term, day, section.start_time);
+        while (!ts.equals(section.end_time)) {
+            let key = ts.toKey();
+            if (schedule[key]) return false;
+            ts.next();
+        }
+    }
+    return true;
+};
+/**
+ * Add the section to schedule, or false if failed.
+ * @param {object} section 
+ * @param {object} schedule 
+ * @returns {Object|boolean} the new schedule, or false
+ */
+export const addToSchedule = (section, schedule) => {
+    let res = {...schedule};
+    for (let day of section.days) {
+        let ts = new Timeslot(section.term, day, section.start_time);
+
+        let firstKey = ts.toKey();
+        if (res[firstKey]) return false;
+        res[firstKey] = section; // store the entire seciton object for first timeslot
+        ts.next();
+        let span = 1; // number of timeslots the section spans
+
+        while (!ts.equals(section.end_time)) {
+            let key = ts.toKey();
+            if (res[key]) return false;
+            res[key] = section.id; // store only the section id for subsequent timeslots
+            ++span;
+            ts.next();
+        }
+        res[firstKey].span = span; // for rendering Schedule table
+    }
+    return res;
+};
+/**
+ * Remove the section from schedule, or false if failed.
+ * @param {object} section 
+ * @param {object} schedule 
+ * @returns {Object|boolean} the new schedule, or false
+ */
+ export const removeFromSchedule = (section, schedule) => {
+    let res = {...schedule};
+    for (let day of section.days) {
+        let ts = new Timeslot(section.term, day, section.start_time);
+
+        let firstKey = ts.toKey();
+        if (!res[firstKey] || !(typeof res[firstKey]) === "object" || res[firstKey].id !== section.id) return false;
+        delete res[firstKey];
+        ts.next();
+
+        while (!ts.equals(section.end_time)) {
+            let key = ts.toKey();
+            if (!res[key]) return false;
+            delete res[key];
+            ts.next();
+        }
+    }
+    return res;
+};
