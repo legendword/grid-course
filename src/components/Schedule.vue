@@ -2,6 +2,7 @@
     <div>
         <div class="text-center my-5">
             <v-btn color="primary" @click="saveAsImage">Save As Image</v-btn>
+            <v-btn class="ml-3" color="error" @click="deleteSchedule">Delete Schedule</v-btn>
         </div>
         <div ref="schedule">
             <div class="mb-5" v-for="term in 2" :key="term">
@@ -71,7 +72,10 @@ export default {
                     saveAs(blob, `GridCourse-${this.session}.png`);
                 });
             });
-        }
+        },
+        deleteSchedule() {
+            this.$emit("delete");
+        },
     }
 }
 </script>

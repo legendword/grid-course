@@ -37,7 +37,9 @@
                                         <v-list-item-group v-model="cur" color="primary">
                                             <v-list-item v-for="(course, ind) in selectedCourses" :key="ind">
                                                 <v-list-item-content>
-                                                    <v-list-item-title>{{ course.subject }} {{ course.course }}</v-list-item-title>
+                                                    <v-list-item-title>
+                                                        {{ course.subject }} {{ course.course }}
+                                                    </v-list-item-title>
                                                 </v-list-item-content>
                                                 <v-list-item-action>
                                                     <v-btn icon @click="removeCourse(ind)">
@@ -50,7 +52,7 @@
                                 </v-col>
                                 <v-col cols="9">
                                     <div v-if="cur !== null && selectedCourses[cur]">
-                                        <h2>{{ selectedCourses[cur].id }}</h2>
+                                        <h2>{{ selectedCourses[cur].id }} {{ selectedCourses[cur].name ? ` - ${selectedCourses[cur].name}` : '' }}</h2>
                                         <v-subheader>Sections ({{ selectedCourses[cur].sections.length }})</v-subheader>
                                         <!--
                                         <v-data-table
@@ -100,7 +102,7 @@
                 </v-stepper-content>
                 <v-stepper-content step="3">
                     <v-container fluid>
-                        <schedules v-if="schedules.length" :schedules="schedules"></schedules>
+                        <schedules v-if="schedules.length" :schedules="schedules" @deleteSchedule="deleteSchedule"></schedules>
                         <div v-else class="min-height center-block">
                             <div>
                                 <div class="mb-6 text-h6">There are no saved schedules yet.</div>
@@ -144,7 +146,8 @@ export default {
                 { text: 'Term', value: 'term' },
                 { text: 'Days', value: 'days' },
                 { text: 'Start Time', value: 'start_time' },
-                { text: 'End Time', value: 'end_time' }
+                { text: 'End Time', value: 'end_time' },
+                { text: 'Room', value: 'room' },
             ],
 
             schedules: [],
@@ -177,7 +180,10 @@ export default {
             let ncur = (ind + 1 === this.selectedCourses.length ? 0 : ind)
             this.selectedCourses.splice(ind, 1)
             this.cur = ncur
-        }
+        },
+        deleteSchedule(ind) {
+            this.schedules.splice(ind, 1);
+        },
     },
     mounted() {
         if (this.$route.query.hasOwnProperty("dev")) {

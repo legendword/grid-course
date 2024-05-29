@@ -4,7 +4,7 @@
             <v-pagination v-model="page" :length="schedules.length" :total-visible="10" />
         </div>
         <div>
-            <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" />
+            <schedule v-if="schedules.length !== 0" :schedule="schedules[page - 1]" @delete="deleteSchedule" />
         </div>
         <div class="my-3 text-center no-print">
             <v-pagination v-model="page" :length="schedules.length" :total-visible="10" />
@@ -30,7 +30,12 @@ export default {
         return {
             page: 1
         }
-    }
+    },
+    methods: {
+        deleteSchedule() {
+            this.$emit("deleteSchedule", this.page - 1);
+        },
+    },
 }
 </script>
 

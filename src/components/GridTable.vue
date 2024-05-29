@@ -7,7 +7,7 @@
                     <col v-for="course in courseKeys" :key="course" :class="[selected[course] ? 'disabled' : '']" />
                 </colgroup>
                 <tr class="table-header primary white--text">
-                    <th class="time empty save-btn" :class="[selectedKeys.length === courseKeys.length ? '' : 'disabled']" @click="saveSchedule">
+                    <th class="time empty save-btn" @click="saveSchedule">
                         {{ saved ? "Saved" : "Save Schedule" }}
                     </th>
                     <th class="course-col" :class="[selected[course] ? 'disabled' : '']" v-for="course in courseKeys" :key="course">{{ course }}</th>
